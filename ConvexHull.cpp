@@ -50,11 +50,27 @@ void ConvexHull::FindConvexHull_JM(const vector<Point> & input, vector<Point> &o
 
     while( !(r == output[0]) ){
         double max_angle = 0;
+        double max_distance_sqr = 0;    //與q的距離平方
         for(int i=0;i<input.size();i++){
-            if( !(input[i] == q) && !(input[i] == p) && ComputeAngle(p, q, input[i]) > max_angle )
+            double cur_angle = ComputeAngle(p, q, input[i]);
+            if( !(input[i] == q) && !(input[i] == p) && cur_angle >= max_angle )
             {
-                max_angle = ComputeAngle(p, q, input[i]);
-                r = input[i];
+                if( cur_angle == max_angle ) // same angle => 取距離更遠的
+                {
+                    if( (input[i].getX()-q.getX()) * (input[i].getX()-q.getX())
+                      + (input[i].getY()-q.getY()) * (input[i].getY()-q.getY()) 
+                      > max_distance_sqr )
+                    {
+                        max_distance_sqr = (input[i].getX()-q.getX()) * (input[i].getX()-q.getX()) + (input[i].getY()-q.getY()) * (input[i].getY()-q.getY());
+                        r = input[i];
+                    }
+                }
+                else    // > max angle
+                {
+                    max_angle = cur_angle;
+                    max_distance_sqr = (input[i].getX()-q.getX()) * (input[i].getX()-q.getX()) + (input[i].getY()-q.getY()) * (input[i].getY()-q.getY());
+                    r = input[i];
+                }
             }
         }
         output.push_back(r);
@@ -86,12 +102,23 @@ Line ConvexHull::FindLine(const Point &p, const Point &q) {
 
 bool ConvexHull::isOnRight(const Point &p, const Point &q, const Point &r) {    //外積判斷
     Line L_pq = FindLine(p,q);
-
     double v_pq[2] = { q.getX()-p.getX(), q.getY()-p.getY() };
     double v_qr[2] = { r.getX()-q.getX(), r.getY()-q.getY() };
+    double v_pr[2] = { r.getX()-p.getX(), r.getY()-p.getY() };
+    double d_pq_sqr = (q.getX()-p.getX())*(q.getX()-p.getX()) + (q.getY()-p.getY())*(q.getY()-p.getY());
+    double d_qr_sqr = (r.getX()-q.getX())*(r.getX()-q.getX()) + (r.getY()-q.getY())*(r.getY()-q.getY());
+    double d_pr_sqr = (r.getX()-p.getX())*(r.getX()-p.getX()) + (r.getY()-p.getY())*(r.getY()-p.getY());
+
     // if |pq x qr| < 0 , then r is on right side of pq
     if( v_pq[0]*v_qr[1] - v_pq[1]*v_qr[0] < 0 )
         return true;
+    else if( v_pq[0]*v_qr[1] - v_pq[1]*v_qr[0] == 0 )   //三點共線, 比較pq, qr, pr三線段長度, 
+    {
+        if( d_pq_sqr >= d_qr_sqr && d_pq_sqr >= d_pr_sqr )  //pq最長
+            return true;
+        else
+            return false;
+    }
     else
         return false;
 }

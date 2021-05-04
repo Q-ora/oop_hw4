@@ -10,4 +10,4 @@ email: steven900412@gmail.com
     5. 結果分別輸出到Output_brutal.txt及Output_Javis.txt
     6. 繳交測資(Input.txt)
     7. 繳交的執行檔和make產生的執行檔名皆為test
-    8. 備註: FindConvexHull是以投影片上寫的"沒有三個點會在同一條直線上"的假設下實作的
+    8. 也能計算hull上有三點共線的情況
