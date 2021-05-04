@@ -17,7 +17,7 @@ bool cmp2(const Point &a, const Point &b);
 int main()
 {
     struct timeval start1, end1, start2, end2, start3, end3;
-    ifstream fin("test_Input.txt");
+    ifstream fin("Input.txt");
     int n=0;
     fin >> n;
     if(n<3){    // 點數少於3
